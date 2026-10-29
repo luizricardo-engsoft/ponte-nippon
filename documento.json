@@ -1,0 +1,22 @@
+[
+    {
+        "tarefa": "Verificar passaporte",
+        "Concluído": true
+    },
+    {
+        "tarefa": "Estudar Japonês",
+        "Concluído": false
+    },
+    {
+        "tarefa": "Juntar dinheiro",
+        "Concluído": false
+    },
+    {
+        "tarefa": "Andar de carro",
+        "Concluído": true
+    },
+    {
+        "tarefa": "Andar de carro",
+        "Concluído": false
+    }
+]

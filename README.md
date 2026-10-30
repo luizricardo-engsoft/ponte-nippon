@@ -1,48 +1,62 @@
-# Ponte Nippon
+Ponte Nippon
 
 Sistema desenvolvido para auxiliar brasileiros na preparação para uma possível experiência de trabalho ou estudo no Japão.
 
-## Sobre o projeto
+Sobre o projeto
 
 O Ponte Nippon reúne informações práticas para facilitar a adaptação de brasileiros à realidade japonesa, organizando conteúdos sobre documentação, idioma e cultura.
 
-## Funcionalidades
+Funcionalidades
 
-- **Documentação:** checklist de preparação para a viagem.
-- **Dicionário:** consulta de expressões e traduções do português para o japonês.
-- **Guia cultural:** informações sobre costumes, leis e comportamento no Japão.
+Autenticação: Sistema de login e cadastro de usuários para acesso à aplicação.
 
-## Tecnologias utilizadas
+Documentação: Checklist de preparação para a viagem.
 
-- Python
-- Tkinter
-- JSON
+Dicionário: Consulta de expressões e traduções do português para o japonês.
 
-## Execução
+Guia cultural: Informações sobre costumes, leis e comportamento no Japão.
 
-1. Instale o Python 3.
-2. Baixe ou clone este repositório.
-3. Execute o arquivo principal:
+Tecnologias utilizadas
 
-```bash
+Python
+
+Tkinter
+
+JSON
+
+Execução
+
+Instale o Python 3.
+
+Baixe ou clone este repositório.
+
+Execute o arquivo principal:
+
 python main.py
-```
 
-## Estrutura do projeto
 
-```text
+Estrutura do projeto
+
 PONTE-NIPPON/
-├── main.py
-├── interface.py
+├── dados/
+├── output/
+├── documento.json
 ├── guia_cultural.py
-└── documento.json
-```
+├── interface.py
+├── login.py
+├── main.py
+├── ponte_nippon.py
+└── usuarios.json
 
-## Desenvolvimento
+
+Desenvolvimento
 
 Projeto individual desenvolvido como atividade acadêmica da disciplina Linguagem de Programação.
 
-**Instituição:** IFAL — Campus Arapiraca  
-**Discente:** Luís Ricardo Rodrigues Sales de Alencar  
-**Docente:** Mauricio Junior  
-**Ano:** 2026
+Instituição: IFAL — Campus Arapiraca
+
+Discente: Luís Ricardo Rodrigues Sales de Alencar
+
+Docente: Mauricio Junior
+
+Ano: 2026

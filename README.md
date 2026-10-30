@@ -10,7 +10,7 @@ Funciona **100% offline** e usa apenas a biblioteca padrão do Python.
 
 Quem se prepara para ir ao Japão costuma depender de pesquisa extensa e de ferramentas espalhadas pela internet. O Ponte Nippon centraliza o básico da preparação inicial: organizar documentos, aprender expressões úteis e entender a etiqueta local.
 
-O projeto parte da experiência do autor, que pretende morar no Japão, e foi validado com um formulário aplicado a 10 pessoas interessadas em ir ao país. Os requisitos, casos de uso e decisões de escopo estão no documento **"Ponte Nippon - Requisitos, Casos de Uso e MVP"** (PDF na raiz deste repositório).
+O projeto foi validado com um formulário aplicado a 10 pessoas interessadas em ir ao país. Os requisitos, casos de uso e decisões de escopo estão no documento **"Ponte Nippon - Requisitos, Casos de Uso e MVP"** (PDF na raiz deste repositório).
 
 ## Funcionalidades
 

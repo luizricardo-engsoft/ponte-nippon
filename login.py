@@ -20,10 +20,7 @@ COR_ERRO = "#B00020"
 COR_SUCESSO = "#1B7F3B"
 
 
-# ---------- Senhas ----------
-
 def gerar_hash(senha, salt=None):
-    """PBKDF2-HMAC-SHA256 com salt aleatório. Formato: salt_hex:hash_hex"""
     salt = salt or os.urandom(16)
     derivado = hashlib.pbkdf2_hmac("sha256", senha.encode("utf-8"), salt, ITERACOES)
     return f"{salt.hex()}:{derivado.hex()}"
@@ -41,11 +38,8 @@ def verificar_senha(senha, armazenado):
 
 
 def _hash_legado(senha):
-    """SHA-256 puro do formato antigo, usado só para migrar contas existentes."""
     return hashlib.sha256(senha.encode("utf-8")).hexdigest()
 
-
-# ---------- Armazenamento ----------
 
 def carregar_usuarios():
     if not os.path.exists(ARQUIVO_USUARIOS):
@@ -60,7 +54,6 @@ def carregar_usuarios():
 
 
 def salvar_usuarios(usuarios):
-    """Grava em arquivo temporário e troca, para não corromper o JSON se falhar no meio."""
     temporario = ARQUIVO_USUARIOS + ".tmp"
     with open(temporario, "w", encoding="utf-8") as arquivo:
         json.dump(usuarios, arquivo, indent=4, ensure_ascii=False)
@@ -74,17 +67,15 @@ def autenticar(email, senha):
     if not isinstance(armazenado, str):
         return False
 
-    # Formato novo (salt:hash)
     if ":" in armazenado:
         return verificar_senha(senha, armazenado)
 
-    # Formato antigo (SHA-256 puro): valida e migra para o formato novo
     if hmac.compare_digest(armazenado, _hash_legado(senha)):
         usuarios[email] = gerar_hash(senha)
         try:
             salvar_usuarios(usuarios)
         except OSError:
-            pass  # login continua válido mesmo se a migração falhar
+            pass
         return True
 
     return False
@@ -96,8 +87,6 @@ def email_valido(email):
     usuario, _, dominio = email.rpartition("@")
     return bool(usuario) and "." in dominio and not dominio.startswith(".") and not dominio.endswith(".")
 
-
-# ---------- Interface ----------
 
 def iniciar_login():
     janela = tk.Tk()
@@ -200,7 +189,6 @@ def iniciar_login():
                 mostrar(f"E-mail ou senha incorretos. Tentativas restantes: {restantes}.")
             return
 
-        # Só destrói a janela depois de garantir que a próxima tela existe
         try:
             from interface import iniciar_aplicacao
         except ImportError as erro:
@@ -227,7 +215,6 @@ def iniciar_login():
 
     janela.mainloop()
 
-    # Abre o app só depois que a janela de login fechou por completo
     if estado["autenticado"] and estado["app"]:
         estado["app"]()
 

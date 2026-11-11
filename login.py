@@ -2,16 +2,14 @@ import hashlib
 import hmac
 import json
 import os
+import time
 import tkinter as tk
 
-ARQUIVO_USUARIOS = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "usuarios.json"
-)
-
+ARQUIVO_USUARIOS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "usuarios.json")
 ITERACOES = 200_000
 MAX_TENTATIVAS = 5
 BLOQUEIO_SEGUNDOS = 30
+CHAVE_BLOQUEIOS = "_bloqueios"
 
 AZUL = "#0B1F3A"
 CREME = "#FAF6F0"
@@ -60,6 +58,79 @@ def salvar_usuarios(usuarios):
     os.replace(temporario, ARQUIVO_USUARIOS)
 
 
+def obter_bloqueios(usuarios):
+    bloqueios = usuarios.get(CHAVE_BLOQUEIOS, {})
+    return bloqueios if isinstance(bloqueios, dict) else {}
+
+
+def obter_status_bloqueio(email):
+    usuarios = carregar_usuarios()
+    bloqueios = obter_bloqueios(usuarios)
+    registro = bloqueios.get(email, {})
+
+    if not isinstance(registro, dict):
+        return 0, 0
+
+    try:
+        tentativas = max(0, int(registro.get("tentativas", 0)))
+        bloqueado_ate = max(0, float(registro.get("bloqueado_ate", 0)))
+    except (TypeError, ValueError):
+        return 0, 0
+
+    restante = max(0, int(bloqueado_ate - time.time() + 0.999))
+
+    if bloqueado_ate and restante == 0:
+        bloqueios.pop(email, None)
+        usuarios[CHAVE_BLOQUEIOS] = bloqueios
+        try:
+            salvar_usuarios(usuarios)
+        except OSError:
+            pass
+        return 0, 0
+
+    return tentativas, restante
+
+
+def registrar_tentativa_incorreta(email):
+    usuarios = carregar_usuarios()
+    bloqueios = obter_bloqueios(usuarios)
+    registro = bloqueios.get(email, {})
+
+    if not isinstance(registro, dict):
+        registro = {}
+
+    try:
+        tentativas = max(0, int(registro.get("tentativas", 0)))
+    except (TypeError, ValueError):
+        tentativas = 0
+
+    tentativas += 1
+    bloqueado_ate = 0
+
+    if tentativas >= MAX_TENTATIVAS:
+        tentativas = MAX_TENTATIVAS
+        bloqueado_ate = time.time() + BLOQUEIO_SEGUNDOS
+
+    bloqueios[email] = {
+        "tentativas": tentativas,
+        "bloqueado_ate": bloqueado_ate
+    }
+    usuarios[CHAVE_BLOQUEIOS] = bloqueios
+    salvar_usuarios(usuarios)
+
+    return tentativas, BLOQUEIO_SEGUNDOS if bloqueado_ate else 0
+
+
+def limpar_tentativas(email):
+    usuarios = carregar_usuarios()
+    bloqueios = obter_bloqueios(usuarios)
+
+    if email in bloqueios:
+        bloqueios.pop(email)
+        usuarios[CHAVE_BLOQUEIOS] = bloqueios
+        salvar_usuarios(usuarios)
+
+
 def autenticar(email, senha):
     usuarios = carregar_usuarios()
     armazenado = usuarios.get(email)
@@ -95,7 +166,12 @@ def iniciar_login():
     janela.configure(bg=CREME)
     janela.resizable(False, False)
 
-    estado = {"tentativas": 0, "bloqueado": False, "autenticado": False, "app": None}
+    estado = {
+        "bloqueado": False,
+        "autenticado": False,
+        "app": None,
+        "email_bloqueado": None
+    }
 
     tk.Label(
         janela, text="Ponte Nippon",
@@ -120,20 +196,20 @@ def iniciar_login():
     def mostrar(texto, erro=True):
         mensagem.config(text=texto, fg=COR_ERRO if erro else COR_SUCESSO)
 
-    def contagem_bloqueio(restante):
+    def contagem_bloqueio(email):
+        _, restante = obter_status_bloqueio(email)
+
         if restante > 0:
+            estado["bloqueado"] = True
+            estado["email_bloqueado"] = email
+            botao_entrar.config(state="disabled")
             mostrar(f"Muitas tentativas. Aguarde {restante}s.")
-            janela.after(1000, lambda: contagem_bloqueio(restante - 1))
+            janela.after(1000, lambda: contagem_bloqueio(email))
         else:
             estado["bloqueado"] = False
-            estado["tentativas"] = 0
+            estado["email_bloqueado"] = None
             botao_entrar.config(state="normal")
             mostrar("Você já pode tentar novamente.", erro=False)
-
-    def bloquear():
-        estado["bloqueado"] = True
-        botao_entrar.config(state="disabled")
-        contagem_bloqueio(BLOQUEIO_SEGUNDOS)
 
     def cadastrar():
         email = email_entry.get().strip().lower()
@@ -169,24 +245,45 @@ def iniciar_login():
         mostrar("Cadastro realizado! Agora entre na sua conta.", erro=False)
 
     def login(event=None):
-        if estado["bloqueado"]:
-            return
-
         email = email_entry.get().strip().lower()
         senha = senha_entry.get()
+
+        if estado["bloqueado"]:
+            if email == estado["email_bloqueado"]:
+                return
+            estado["bloqueado"] = False
+            estado["email_bloqueado"] = None
+            botao_entrar.config(state="normal")
 
         if not email or not senha:
             mostrar("Preencha o e-mail e a senha.")
             return
 
-        if not autenticar(email, senha):
-            estado["tentativas"] += 1
-            restantes = MAX_TENTATIVAS - estado["tentativas"]
+        _, restante = obter_status_bloqueio(email)
 
-            if restantes <= 0:
-                bloquear()
+        if restante > 0:
+            contagem_bloqueio(email)
+            return
+
+        if not autenticar(email, senha):
+            try:
+                tentativas, bloqueio = registrar_tentativa_incorreta(email)
+            except OSError:
+                mostrar("Não foi possível registrar a tentativa. Verifique o arquivo de usuários.")
+                return
+
+            restantes = MAX_TENTATIVAS - tentativas
+
+            if bloqueio:
+                contagem_bloqueio(email)
             else:
                 mostrar(f"E-mail ou senha incorretos. Tentativas restantes: {restantes}.")
+            return
+
+        try:
+            limpar_tentativas(email)
+        except OSError:
+            mostrar("Não foi possível atualizar o registro de tentativas.")
             return
 
         try:

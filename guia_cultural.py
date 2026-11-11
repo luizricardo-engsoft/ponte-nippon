@@ -53,10 +53,20 @@ def pesquisar_dicionario():
 
 def exibir_guia_cultural():
     costumes = [
-        "->> Trocar os sapatos em determinados ambientes",
-        "->> Respeitar filas",
-        "->> Manter o silêncio em transporte público",
-        "->> Descartar o lixo corretamente",
+        "EM CASA E RESTAURANTES\n"
+        "->> Tirar os sapatos na entrada\n"
+        "->> Dizer \"itadakimasu\" antes de comer\n"
+        "->> Não espetar os hashis no arroz",
+
+        "NO TRANSPORTE PÚBLICO\n"
+        "->> Manter o silêncio\n"
+        "->> Evitar falar ao telefone\n"
+        "->> Respeitar a fila de embarque",
+
+        "NA RUA E NO DIA A DIA\n"
+        "->> Respeitar filas\n"
+        "->> Descartar o lixo corretamente (há poucas lixeiras)\n"
+        "->> Fazer reverência ao cumprimentar",
     ]
 
     return costumes
@@ -114,4 +124,3 @@ def buscar_traducao(entrada):
             resultados.append(f"{palavra}: {traducao}")
 
     return resultados
-

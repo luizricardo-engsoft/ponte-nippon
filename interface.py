@@ -1,5 +1,6 @@
 
 import tkinter as tk
+from tkinter import simpledialog
 import json
 import os
 from guia_cultural import exibir_guia_cultural, buscar_traducao
@@ -177,7 +178,13 @@ def iniciar_aplicacao():
         def atualizar_lista():
             lista_tarefas.delete(0, tk.END)
 
-            for tarefa in carregar():
+            tarefas = carregar()
+
+            if not tarefas:
+                lista_tarefas.insert(tk.END, "Nenhuma tarefa cadastrada")
+                return
+
+            for tarefa in tarefas:
                 simbolo = "☑" if tarefa.get("Concluído", False) else "☐"
                 nome = tarefa.get("tarefa", "Tarefa")
                 lista_tarefas.insert(tk.END, f"{simbolo}  {nome}")
@@ -228,6 +235,44 @@ def iniciar_aplicacao():
             except OSError as erro:
                 mensagem.config(text=f"Erro ao salvar: {erro}")
 
+        def editar():
+            selecao = lista_tarefas.curselection()
+
+            if not selecao:
+                mensagem.config(text="Selecione uma tarefa para editar.")
+                return
+
+            indice = selecao[0]
+            tarefas = carregar()
+
+            if indice >= len(tarefas):
+                return
+
+            novo_nome = simpledialog.askstring(
+                "Editar tarefa", "Novo texto da tarefa:",
+                initialvalue=tarefas[indice].get("tarefa", ""),
+                parent=janela
+            )
+
+            if novo_nome is None:
+                return
+
+            novo_nome = novo_nome.strip()
+
+            if not novo_nome:
+                mensagem.config(text="Digite o nome da tarefa.")
+                return
+
+            tarefas[indice]["tarefa"] = novo_nome
+
+            try:
+                salvar(tarefas)
+                atualizar_lista()
+                lista_tarefas.selection_set(indice)
+                mensagem.config(text="Tarefa editada.")
+            except OSError as erro:
+                mensagem.config(text=f"Erro ao salvar: {erro}")
+
         def excluir_tarefa():
             selecao = lista_tarefas.curselection()
 
@@ -266,6 +311,14 @@ def iniciar_aplicacao():
             botoes_checklist,
             text="Marcar / desmarcar",
             command=marcar,
+            bg=AZUL,
+            fg=BRANCO
+        ).pack(side="left", padx=(0, 8))
+
+        tk.Button(
+            botoes_checklist,
+            text="Editar tarefa",
+            command=editar,
             bg=AZUL,
             fg=BRANCO
         ).pack(side="left", padx=(0, 8))

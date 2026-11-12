@@ -4,100 +4,164 @@ from tkinter import simpledialog
 import json
 import os
 from guia_cultural import exibir_guia_cultural, buscar_traducao
+from tema import (
+    AZUL, AZUL_CLARO, VERMELHO, ROSA, ROSA_FORTE, CREME, BRANCO, BORDA,
+    CINZA_AZULADO, TEXTO_SUAVE, fonte, desenhar_banner, quadrado_icone,
+    galho_sakura
+)
 
-AZUL = "#0B1F3A"
-VERMELHO = "#E63946"
-CREME = "#FAF6F0"
-BRANCO = "#FFFFFF"
 ARQUIVO = os.path.join(os.path.dirname(__file__), "documento.json")
+LARGURA_MENU = 230
+LARGURA_AREA = 920
 
 
 def iniciar_aplicacao():
     janela = tk.Tk()
     janela.title("Ponte Nippon")
-    janela.geometry("1200x650")
+    janela.geometry("1200x700")
     janela.configure(bg=CREME)
+    janela.resizable(False, False)
 
-    menu = tk.Frame(janela, bg=AZUL, width=220)
+    rodape = tk.Frame(
+        janela, bg=BRANCO, height=38,
+        highlightbackground=BORDA, highlightthickness=1
+    )
+    rodape.pack(side="bottom", fill="x")
+    rodape.pack_propagate(False)
+
+    tk.Label(
+        rodape, text="Ponte Nippon   —   Mais do que uma viagem, um encontro de culturas.",
+        font=fonte(9), bg=BRANCO, fg=TEXTO_SUAVE
+    ).pack(side="left", padx=25)
+
+    tk.Label(
+        rodape, text="⛩", font=fonte(13), bg=BRANCO, fg=VERMELHO
+    ).pack(side="right", padx=25)
+
+    menu = tk.Frame(janela, bg=AZUL, width=LARGURA_MENU)
     menu.pack(side="left", fill="y")
     menu.pack_propagate(False)
 
     area = tk.Frame(janela, bg=CREME)
-    area.pack(fill="both", expand=True, padx=25, pady=20)
+    area.pack(fill="both", expand=True, padx=25, pady=18)
 
     botoes = {}
 
-    def pagina(titulo):
+    def pagina(titulo, ativo=None):
         for w in area.winfo_children():
             w.destroy()
 
         for nome, botao in botoes.items():
-            botao.config(bg=VERMELHO if nome == titulo else AZUL)
+            botao.config(bg=VERMELHO if nome == (ativo or titulo) else AZUL)
 
-        tk.Label(
-            area, text=titulo, font=("Arial", 23, "bold"),
-            bg=CREME, fg=AZUL
-        ).pack(anchor="w", pady=(0, 20))
+        if titulo:
+            tk.Label(
+                area, text=titulo, font=fonte(23, "bold"),
+                bg=CREME, fg=AZUL
+            ).pack(anchor="w", pady=(0, 18))
 
     def inicio():
-        pagina("Bem-vindo ao Ponte Nippon")
+        pagina("", ativo="Início")
 
-        tk.Label(
-            area,
-            text="Seu guia para se preparar, aprender\n"
-                 "e viver essa jornada entre Brasil e Japão.",
-            font=("Arial", 13), bg=CREME, fg=AZUL,
-            justify="left"
-        ).pack(anchor="w", pady=(0, 25))
+        desenhar_banner(
+            area, LARGURA_AREA, 215,
+            "Bem-vindo ao", "Ponte Nippon",
+            "Seu guia para se preparar, aprender\n"
+            "e viver essa jornada entre Brasil e Japão."
+        ).pack(anchor="w")
 
         cards = tk.Frame(area, bg=CREME)
-        cards.pack(fill="x")
+        cards.pack(fill="x", pady=(18, 0))
 
-        for nome, descricao, comando in [
-            ("Checklist", "Organize seus documentos e tarefas.", checklist),
-            ("Dicionário", "Aprenda frases e expressões em japonês.", dicionario),
-            ("Guia Cultural", "Conheça costumes e tradições japonesas.", guia),
+        for nome, simbolo, cor_icone, descricao, comando in [
+            ("Checklist", "☑", "#FDE7EA",
+             "Organize seus documentos,\nrequisitos e tudo o que você\nprecisa para a sua viagem.",
+             checklist),
+            ("Dicionário", "▤", AZUL_CLARO,
+             "Aprenda as principais\nfrases e expressões em\njaponês.",
+             dicionario),
+            ("Guia Cultural", "◉", "#EFEDFF",
+             "Conheça os costumes,\ntradições e etiqueta\njaponesa.",
+             guia),
         ]:
             card = tk.Frame(
-                cards, bg=BRANCO, padx=12, pady=18,
-                highlightbackground="#DCDDE0", highlightthickness=1
+                cards, bg=BRANCO, padx=16, pady=18,
+                highlightbackground=BORDA, highlightthickness=1
             )
-            card.pack(side="left", fill="both", expand=True, padx=(0, 10))
+            card.pack(side="left", fill="both", expand=True, padx=(0, 12))
+
+            quadrado_icone(card, simbolo, cor_icone, AZUL).pack(anchor="w", pady=(0, 14))
 
             tk.Label(
-                card, text=nome, font=("Arial", 14, "bold"),
+                card, text=nome, font=fonte(14, "bold"),
                 bg=BRANCO, fg=AZUL
-            ).pack(anchor="w", pady=(0, 12))
+            ).pack(anchor="w", pady=(0, 8))
 
             tk.Label(
-                card, text=descricao, wraplength=175,
-                justify="left", bg=BRANCO, fg=AZUL
-            ).pack(anchor="w", pady=(0, 20))
+                card, text=descricao, font=fonte(10),
+                justify="left", bg=BRANCO, fg=TEXTO_SUAVE
+            ).pack(anchor="w", pady=(0, 16))
 
             tk.Button(
-                card, text="Acessar →", command=comando,
-                bg=AZUL, fg=BRANCO, relief="flat"
+                card, text="Acessar  →", command=comando,
+                font=fonte(10, "bold"), bg=AZUL, fg=BRANCO,
+                relief="flat", borderwidth=0, highlightthickness=0,
+                pady=6, cursor="hand2"
             ).pack(fill="x")
 
+        citacao = tk.Frame(cards, bg=ROSA, padx=16, pady=18, width=205)
+        citacao.pack(side="left", fill="both")
+        citacao.pack_propagate(False)
+
         tk.Label(
-            area,
-            text="Cultura, linguagem e planejamento.\n"
-                 "Tudo para transformar o sonho do Japão em realidade.",
-            font=("Arial", 12), bg="#EDF1F8", fg=AZUL,
-            padx=15, pady=20
-        ).pack(fill="x", pady=25)
+            citacao, text="\"Novos horizontes\nexigem preparo.\"",
+            font=fonte(12, "bold"), justify="left", bg=ROSA, fg=AZUL
+        ).pack(anchor="w")
+
+        tk.Label(
+            citacao,
+            text="O conhecimento é a ponte\nentre o seu presente\ne o seu futuro.",
+            font=fonte(9), justify="left", bg=ROSA, fg=AZUL
+        ).pack(anchor="w", pady=(12, 0))
+
+        tk.Label(
+            citacao, text="⛩", font=fonte(18), bg=ROSA, fg=VERMELHO
+        ).pack(anchor="w", pady=(16, 0))
+
+        faixa = tk.Frame(area, bg=AZUL_CLARO, padx=20, pady=16)
+        faixa.pack(fill="x", pady=(18, 0))
+
+        tk.Label(
+            faixa, text="日本へ", font=fonte(14), bg=AZUL_CLARO, fg=AZUL
+        ).pack(side="right")
+
+        textos = tk.Frame(faixa, bg=AZUL_CLARO)
+        textos.pack(side="left")
+
+        tk.Label(
+            textos, text="Cultura, linguagem, planejamento.",
+            font=fonte(11, "bold"), bg=AZUL_CLARO, fg=AZUL
+        ).pack(anchor="w")
+
+        tk.Label(
+            textos,
+            text="Tudo o que você precisa para transformar o sonho do Japão em realidade.",
+            font=fonte(10), bg=AZUL_CLARO, fg=TEXTO_SUAVE
+        ).pack(anchor="w")
 
     def dicionario():
-        pagina("Dicionário Japonês-Português")
+        pagina("Dicionário Japonês-Português", ativo="Dicionário")
 
-        campo = tk.Entry(area, font=("Arial", 13))
-        campo.pack(fill="x", pady=5)
+        campo = tk.Entry(
+            area, font=fonte(12), bg=BRANCO, fg=AZUL, relief="flat",
+            highlightbackground=BORDA, highlightcolor=AZUL, highlightthickness=1
+        )
+        campo.pack(fill="x", ipady=8, pady=(0, 12))
 
         resultado = tk.Label(
             area, text="", bg=CREME, fg=AZUL,
-            font=("Arial", 12), justify="left"
+            font=fonte(12), justify="left"
         )
-        resultado.pack(anchor="w", pady=15)
 
         def pesquisar():
             termo = campo.get().strip()
@@ -117,13 +181,18 @@ def iniciar_aplicacao():
 
         tk.Button(
             area, text="Pesquisar", command=pesquisar,
-            bg=VERMELHO, fg=BRANCO
+            font=fonte(10, "bold"), bg=VERMELHO, fg=BRANCO,
+            relief="flat", borderwidth=0, highlightthickness=0,
+            padx=20, pady=7, cursor="hand2"
         ).pack(anchor="w")
 
+        resultado.pack(anchor="w", pady=18)
+
         campo.bind("<Return>", lambda evento: pesquisar())
+        campo.focus_set()
 
     def guia():
-        pagina("Guia Cultural do Japão")
+        pagina("Guia Cultural do Japão", ativo="Guia Cultural")
 
         try:
             dados = exibir_guia_cultural()
@@ -132,15 +201,17 @@ def iniciar_aplicacao():
             texto = f"Não foi possível carregar o guia: {erro}"
 
         caixa = tk.Text(
-            area, wrap="word", font=("Arial", 12),
-            bg=BRANCO, fg=AZUL
+            area, wrap="word", font=fonte(12),
+            bg=BRANCO, fg=AZUL, relief="flat",
+            padx=20, pady=18, spacing1=2, spacing3=4,
+            highlightbackground=BORDA, highlightthickness=1
         )
         caixa.pack(fill="both", expand=True)
         caixa.insert("1.0", texto)
         caixa.config(state="disabled")
 
     def checklist():
-        pagina("Checklist de documentação")
+        pagina("Checklist de documentação", ativo="Checklist")
 
         def carregar():
             try:
@@ -158,22 +229,29 @@ def iniciar_aplicacao():
                     indent=4, ensure_ascii=False
                 )
 
-        campo = tk.Entry(area, font=("Arial", 12))
-        campo.pack(fill="x", pady=5)
+        campo = tk.Entry(
+            area, font=fonte(12), bg=BRANCO, fg=AZUL, relief="flat",
+            highlightbackground=BORDA, highlightcolor=AZUL, highlightthickness=1
+        )
+        campo.pack(fill="x", ipady=8)
 
         lista_tarefas = tk.Listbox(
             area,
-            font=("Arial", 12),
+            font=fonte(12),
             bg=BRANCO,
             fg=AZUL,
             selectbackground=AZUL,
             selectforeground=BRANCO,
-            height=14
+            relief="flat",
+            highlightbackground=BORDA,
+            highlightthickness=1,
+            activestyle="none",
+            height=13
         )
-        lista_tarefas.pack(fill="both", expand=True, pady=10)
+        lista_tarefas.pack(fill="both", expand=True, pady=12)
 
-        mensagem = tk.Label(area, text="", bg=CREME, fg=AZUL)
-        mensagem.pack(anchor="w", pady=5)
+        mensagem = tk.Label(area, text="", bg=CREME, fg=TEXTO_SUAVE, font=fonte(10))
+        mensagem.pack(anchor="w", pady=(0, 10))
 
         def atualizar_lista():
             lista_tarefas.delete(0, tk.END)
@@ -187,7 +265,7 @@ def iniciar_aplicacao():
             for tarefa in tarefas:
                 simbolo = "☑" if tarefa.get("Concluído", False) else "☐"
                 nome = tarefa.get("tarefa", "Tarefa")
-                lista_tarefas.insert(tk.END, f"{simbolo}  {nome}")
+                lista_tarefas.insert(tk.END, f"  {simbolo}   {nome}")
 
         def adicionar():
             nome = campo.get().strip()
@@ -299,48 +377,51 @@ def iniciar_aplicacao():
         botoes_checklist = tk.Frame(area, bg=CREME)
         botoes_checklist.pack(anchor="w")
 
-        tk.Button(
-            botoes_checklist,
-            text="Adicionar tarefa",
-            command=adicionar,
-            bg=AZUL,
-            fg=BRANCO
-        ).pack(side="left", padx=(0, 8))
-
-        tk.Button(
-            botoes_checklist,
-            text="Marcar / desmarcar",
-            command=marcar,
-            bg=AZUL,
-            fg=BRANCO
-        ).pack(side="left", padx=(0, 8))
-
-        tk.Button(
-            botoes_checklist,
-            text="Editar tarefa",
-            command=editar,
-            bg=AZUL,
-            fg=BRANCO
-        ).pack(side="left", padx=(0, 8))
-
-        botao_excluir = tk.Button(
-            botoes_checklist,
-            text="Excluir tarefa",
-            command=excluir_tarefa,
-            bg=VERMELHO,
-            fg=BRANCO
-        )
-        botao_excluir.pack(side="left")
+        for texto, acao, cor in [
+            ("Adicionar tarefa", adicionar, AZUL),
+            ("Marcar / desmarcar", marcar, AZUL),
+            ("Editar tarefa", editar, AZUL),
+            ("Excluir tarefa", excluir_tarefa, VERMELHO),
+        ]:
+            tk.Button(
+                botoes_checklist,
+                text=texto,
+                command=acao,
+                font=fonte(10, "bold"),
+                bg=cor,
+                fg=BRANCO,
+                relief="flat",
+                borderwidth=0,
+                highlightthickness=0,
+                padx=16,
+                pady=7,
+                cursor="hand2"
+            ).pack(side="left", padx=(0, 8))
 
         campo.bind("<Return>", lambda evento: adicionar())
+        campo.focus_set()
 
         atualizar_lista()
 
+    cabecalho = tk.Frame(menu, bg=AZUL)
+    cabecalho.pack(fill="x", padx=18, pady=(26, 20))
+
     tk.Label(
-        menu, text="⛩\nPonte Nippon\nBRASIL → JAPÃO",
-        font=("Arial", 17, "bold"), bg=AZUL, fg=BRANCO,
-        pady=25
-    ).pack(fill="x")
+        cabecalho, text="⛩", font=fonte(22), bg=AZUL, fg=VERMELHO
+    ).pack(side="left", padx=(0, 10))
+
+    titulos = tk.Frame(cabecalho, bg=AZUL)
+    titulos.pack(side="left")
+
+    tk.Label(
+        titulos, text="Ponte Nippon",
+        font=fonte(15, "bold"), bg=AZUL, fg=BRANCO
+    ).pack(anchor="w")
+
+    tk.Label(
+        titulos, text="BRASIL   →   JAPÃO",
+        font=fonte(8), bg=AZUL, fg=CINZA_AZULADO
+    ).pack(anchor="w")
 
     for nome, simbolo, comando in [
         ("Início", "⌂", inicio),
@@ -349,13 +430,29 @@ def iniciar_aplicacao():
         ("Checklist", "☑", checklist),
     ]:
         botao = tk.Button(
-            menu, text=f"  {simbolo}   {nome}", command=comando,
-            font=("Arial", 11), anchor="w", padx=15, pady=12,
+            menu, text=f"   {simbolo}    {nome}", command=comando,
+            font=fonte(11), anchor="w", padx=12, pady=11,
             bg=AZUL, fg=BRANCO, activeforeground=BRANCO,
-            activebackground=VERMELHO, relief="flat"
+            activebackground=VERMELHO, relief="flat",
+            borderwidth=0, highlightthickness=0, cursor="hand2"
         )
-        botao.pack(fill="x", padx=12, pady=3)
+        botao.pack(fill="x", padx=14, pady=3)
         botoes[nome] = botao
+
+    passos = tk.Frame(menu, bg=AZUL)
+    passos.pack(side="bottom", fill="x", padx=20, pady=26)
+
+    tk.Label(
+        passos, text="\"Pequenos passos\ntambém te levam longe.\"",
+        font=fonte(9), justify="left", bg=AZUL, fg=CINZA_AZULADO
+    ).pack(anchor="w")
+
+    tk.Label(
+        passos, text="一歩ずつ、遠くへ",
+        font=fonte(10), bg=AZUL, fg=ROSA_FORTE
+    ).pack(anchor="w", pady=(6, 0))
+
+    galho_sakura(menu, LARGURA_MENU, 150, AZUL).pack(side="bottom", fill="x")
 
     inicio()
     janela.mainloop()

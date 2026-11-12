@@ -4,7 +4,8 @@ Aplicativo de desktop em Python que reúne, em um só lugar, **checklist de docu
 
 Funciona **100% offline** e usa apenas a biblioteca padrão do Python.
 
-<img width="1496" height="844" alt="image" src="https://github.com/user-attachments/assets/b98a681b-9293-4c63-9477-e918abe27cb8" />
+<img width="1500" height="906" alt="image" src="https://github.com/user-attachments/assets/aa2645dd-69cb-4ccc-a16d-d3972c505f5e" />
+
 
 ## Sobre o projeto
 

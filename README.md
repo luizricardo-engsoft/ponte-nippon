@@ -29,10 +29,16 @@ O projeto foi validado com um formulário aplicado a 10 pessoas interessadas em 
 - O sistema **não armazena documentos pessoais**, apenas o nome das tarefas.
 - Entradas inválidas e arquivos de dados ausentes ou corrompidos são tratados: o programa abre normalmente, com a lista vazia, sem encerrar.
 
+## Identidade visual
+
+A interface segue o requisito não funcional RNF05: elementos tradicionais do Japão fazendo ponte com o Brasil. A ilustração reúne o **monte Fuji**, um **torii**, a **sakura** japonesa e o **ipê-rosa** brasileiro, com a paleta azul-marinho, vermelho sakura, rosa e off-white.
+
+Nada disso usa arquivo de imagem ou biblioteca externa: tudo é desenhado em tempo de execução com `tkinter.Canvas`, a partir de polígonos, círculos e degradês montados no próprio código (`tema.py`).
+
 ## Tecnologias
 
 - Python 3 (somente biblioteca padrão)
-- Tkinter (interface gráfica)
+- Tkinter (interface gráfica) e `tkinter.Canvas` (ilustrações)
 - JSON (persistência de contas e tarefas)
 
 ## Como executar
@@ -63,7 +69,7 @@ python ponte_nippon.py
    - **Dicionário:** digite uma frase em português no campo de busca para ver a tradução.
    - **Guia cultural:** consulte costumes e etiqueta por situação.
 
-Os arquivos `usuarios.json` e `checklist.json` são criados e atualizados durante o uso e não fazem parte do repositório, para que contas e dados pessoais não sejam versionados.
+As tarefas do checklist ficam em `documento.json`, versionado aqui com alguns exemplos. O arquivo `usuarios.json` é criado na primeira execução e **não faz parte do repositório**, para que contas e hashes de senha não sejam versionados.
 
 ## Estrutura do projeto
 
@@ -72,9 +78,10 @@ ponte-nippon/
 ├── main.py             # ponto de entrada (interface gráfica)
 ├── login.py            # cadastro, login, hash de senha e bloqueio por tentativas
 ├── interface.py        # telas e checklist (carregar/salvar tarefas)
+├── tema.py             # paleta, tipografia e ilustrações em Canvas
 ├── guia_cultural.py    # dicionário de frases e guia cultural
 ├── ponte_nippon.py     # versão de terminal (menu em texto)
-├── documento.json
+├── documento.json      # tarefas do checklist
 └── Ponte Nippon - Requisitos, Casos de Uso e MVP.pdf
 ```
 
